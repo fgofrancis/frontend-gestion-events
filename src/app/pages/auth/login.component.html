@@ -1,0 +1,70 @@
+<div class="auth">
+  <section class="auth__brand">
+    <span class="auth__mark">Ev</span>
+
+    <div class="auth__brand-content">
+      <h1 class="auth__title">Gestión de eventos, sin fricción.</h1>
+      <p class="auth__tagline">
+        Inicia sesión para administrar eventos, categorías y ponentes desde un
+        mismo panel.
+      </p>
+    </div>
+
+    <p class="auth__brand-footer">Eventos · Panel de gestión</p>
+  </section>
+
+  <section class="auth__panel">
+    <div class="auth__panel-inner">
+      <h2 class="auth__heading">Iniciar sesión</h2>
+      <p class="auth__subheading">Ingresa tus credenciales para continuar.</p>
+
+      <p class="auth__success" *ngIf="justRegistered() && !error()">Cuenta creada. Ya puedes iniciar sesión.</p>
+      <p class="auth__error" *ngIf="error()">{{ error() }}</p>
+
+      <form class="form" [formGroup]="form" (ngSubmit)="submit()">
+        <div class="field">
+          <label class="field__label" for="username">Usuario</label>
+          <input
+            id="username"
+            type="text"
+            class="field__input"
+            formControlName="username"
+            autocomplete="username"
+            placeholder="tu.usuario"
+          />
+          <p class="field__error" *ngIf="form.controls.username.touched && form.controls.username.invalid">
+            El usuario es obligatorio.
+          </p>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="password">Contraseña</label>
+          <div class="field__input-wrap">
+            <input
+              id="password"
+              [type]="showPassword() ? 'text' : 'password'"
+              class="field__input"
+              formControlName="password"
+              autocomplete="current-password"
+              placeholder="••••••••"
+            />
+            <button type="button" class="field__toggle" (click)="showPassword.set(!showPassword())">
+              {{ showPassword() ? 'Ocultar' : 'Ver' }}
+            </button>
+          </div>
+          <p class="field__error" *ngIf="form.controls.password.touched && form.controls.password.invalid">
+            La contraseña es obligatoria.
+          </p>
+        </div>
+
+        <button type="submit" class="btn btn--primary" [disabled]="loading()">
+          {{ loading() ? 'Ingresando…' : 'Ingresar' }}
+        </button>
+      </form>
+
+      <p class="auth__footer">
+        ¿No tienes cuenta? <a routerLink="/auth/registro">Crear una cuenta</a>
+      </p>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,108 @@
+<section class="page">
+  <a class="back" routerLink="/eventos">← Eventos</a>
+
+  <h1 class="page__title">{{ isEditMode ? 'Editar evento' : 'Nuevo evento' }}</h1>
+  <p class="page__subtitle">
+    {{ isEditMode ? 'Actualiza los datos de este evento.' : 'Completa los datos para programar un nuevo evento.' }}
+  </p>
+
+  <p class="alert" *ngIf="error()">{{ error() }}</p>
+
+  <div class="skeleton-form" *ngIf="loading()">
+    <div class="skeleton-line" style="width: 40%"></div>
+    <div class="skeleton-line" style="width: 100%; height: 40px"></div>
+    <div class="skeleton-line" style="width: 40%"></div>
+    <div class="skeleton-line" style="width: 100%; height: 40px"></div>
+    <div class="skeleton-line" style="width: 40%"></div>
+    <div class="skeleton-line" style="width: 100%; height: 40px"></div>
+    <div class="skeleton-line" style="width: 40%"></div>
+    <div class="skeleton-line" style="width: 100%; height: 120px"></div>
+  </div>
+
+  <form class="form" *ngIf="!loading()" [formGroup]="form" (ngSubmit)="submit()">
+    <div class="form__row">
+      <div class="field">
+        <label class="field__label" for="name">Nombre</label>
+        <input
+          id="name"
+          type="text"
+          class="field__input"
+          formControlName="name"
+          placeholder="Ej. Conferencia de Spring Boot"
+          maxlength="150"
+        />
+        <p class="field__error" *ngIf="form.controls.name.touched && form.controls.name.invalid">
+          El nombre es obligatorio.
+        </p>
+      </div>
+    </div>
+
+    <div class="form__row form__row--split">
+      <div class="field">
+        <label class="field__label" for="date">Fecha</label>
+        <input id="date" type="date" class="field__input" formControlName="date" />
+        <p class="field__error" *ngIf="form.controls.date.touched && form.controls.date.invalid">
+          Selecciona una fecha.
+        </p>
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="location">Ubicación</label>
+        <input
+          id="location"
+          type="text"
+          class="field__input"
+          formControlName="location"
+          placeholder="Ciudad o sede"
+        />
+        <p class="field__error" *ngIf="form.controls.location.touched && form.controls.location.invalid">
+          La ubicación es obligatoria.
+        </p>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="categoryId">Categoría</label>
+      <select id="categoryId" class="field__input" formControlName="categoryId">
+        <option [ngValue]="null" disabled>Selecciona una categoría</option>
+        <option *ngFor="let category of categories()" [ngValue]="category.id">
+          {{ category.name }}
+        </option>
+      </select>
+      <p class="field__error" *ngIf="form.controls.categoryId.touched && form.controls.categoryId.invalid">
+        Selecciona una categoría.
+      </p>
+      <p class="field__hint" *ngIf="!categories().length">
+        No hay categorías creadas todavía —
+        <a routerLink="/categorias/nueva">crea una primero</a>.
+      </p>
+    </div>
+
+    <div class="field">
+      <label class="field__label">Ponentes</label>
+      <div class="speakers" *ngIf="speakers().length; else noSpeakers">
+        <label class="speaker-option" *ngFor="let speaker of speakers()">
+          <input
+            type="checkbox"
+            [checked]="isSpeakerSelected(speaker.id)"
+            (change)="toggleSpeaker(speaker.id)"
+          />
+          <span class="speaker-option__name">{{ speaker.name }}</span>
+        </label>
+      </div>
+      <ng-template #noSpeakers>
+        <p class="field__hint">
+          No hay ponentes registrados todavía —
+          <a routerLink="/ponentes/nuevo">crea uno primero</a>.
+        </p>
+      </ng-template>
+    </div>
+
+    <div class="form__actions">
+      <a class="btn btn--ghost" routerLink="/eventos">Cancelar</a>
+      <button type="submit" class="btn btn--primary" [disabled]="saving()">
+        {{ saving() ? 'Guardando…' : 'Guardar evento' }}
+      </button>
+    </div>
+  </form>
+</section>

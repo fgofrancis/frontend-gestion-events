@@ -1,0 +1,22 @@
+<nav class="sidebar" [class.open]="isOpen">
+  <button class="toggle-btn" (click)="isOpen = !isOpen">☰</button>
+
+  <h3>Contenido</h3>
+  <ul>
+    <li><a routerLink="/eventos" routerLinkActive="active">📅 Eventos</a></li>
+    <li><a routerLink="/categorias" routerLinkActive="active">🏷️ Categorías</a></li>
+    <li><a routerLink="/ponentes" routerLinkActive="active">🎤 Ponentes</a></li>
+  </ul>
+
+  <h3>Acceso</h3>
+  <ul>
+    <li><a routerLink="/auth" routerLinkActive="active">🔑 Autenticación</a></li>
+  </ul>
+
+  <button class="sidebar__link" (click)="logout()">
+    <span class="sidebar__label">Cerrar sesión — {{ authService.username() }}</span>
+  </button>
+</nav>
+
+
+

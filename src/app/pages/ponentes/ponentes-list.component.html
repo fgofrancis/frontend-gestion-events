@@ -1,0 +1,59 @@
+<section class="page">
+  <header class="page__header">
+    <div>
+      <h1 class="page__title">Ponentes</h1>
+      <p class="page__subtitle">Personas que participan como oradores en tus eventos</p>
+    </div>
+    <a class="btn btn--primary" routerLink="nuevo">Nuevo ponente</a>
+  </header>
+
+  <p class="alert" *ngIf="error()">{{ error() }}</p>
+
+  <div class="table-card" *ngIf="!loading(); else loadingState">
+    <table class="table" *ngIf="speakers().length; else emptyState">
+      <thead>
+        <tr>
+          <th>Ponente</th>
+          <th>Correo</th>
+          <th>Bio</th>
+          <th class="table__actions-col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let speaker of speakers()">
+          <td class="table__person">
+            <span class="avatar">{{ initials(speaker.name) }}</span>
+            <span class="table__name">{{ speaker.name }}</span>
+          </td>
+          <td class="table__email">{{ speaker.email }}</td>
+          <td class="table__bio">{{ speaker.bio || '—' }}</td>
+          <td class="table__actions">
+            <a class="link" [routerLink]="[speaker.id, 'editar']">Editar</a>
+            <button
+              type="button"
+              class="link link--danger"
+              [disabled]="deletingId() === speaker.id"
+              (click)="remove(speaker)"
+            >
+              {{ deletingId() === speaker.id ? 'Eliminando…' : 'Eliminar' }}
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <ng-template #emptyState>
+      <div class="empty">
+        <p class="empty__title">Todavía no hay ponentes</p>
+        <p class="empty__subtitle">Agrega el primero para poder asignarlo a un evento.</p>
+        <a class="btn btn--primary" routerLink="nuevo">Nuevo ponente</a>
+      </div>
+    </ng-template>
+  </div>
+
+  <ng-template #loadingState>
+    <div class="table-card table-card--loading">
+      <div class="skeleton-row" *ngFor="let i of [1, 2, 3]"></div>
+    </div>
+  </ng-template>
+</section>

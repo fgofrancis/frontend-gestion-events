@@ -1,0 +1,67 @@
+<section class="report">
+  <header class="report__toolbar">
+    <button type="button" class="btn btn--ghost" (click)="goBack()">← Volver</button>
+    <button type="button" class="btn btn--primary" (click)="print()" [disabled]="loading()">
+      Imprimir / Guardar como PDF
+    </button>
+  </header>
+
+  <article class="report__sheet">
+    <header class="report__header">
+      <div>
+        <p class="report__eyebrow">Eventos</p>
+        <h1 class="report__title">Reporte de eventos</h1>
+      </div>
+      <p class="report__meta">Generado el {{ generatedAt | date: 'd MMMM y, HH:mm' }}</p>
+    </header>
+
+    <div class="report__filters" *ngIf="hasFilters">
+      <span class="report__filters-label">Filtros aplicados:</span>
+      <span class="filter-chip" *ngIf="filters.name">Nombre: "{{ filters.name }}"</span>
+      <span class="filter-chip" *ngIf="filters.location">Ubicación: "{{ filters.location }}"</span>
+      <span class="filter-chip" *ngIf="filters.dateFrom">Desde: {{ filters.dateFrom | date: 'd MMM y' }}</span>
+      <span class="filter-chip" *ngIf="filters.dateTo">Hasta: {{ filters.dateTo | date: 'd MMM y' }}</span>
+    </div>
+    <p class="report__filters report__filters--none" *ngIf="!hasFilters">Sin filtros aplicados — todos los eventos.</p>
+
+    <p class="alert" *ngIf="error()">{{ error() }}</p>
+
+    <div class="skeleton" *ngIf="loading()">
+      <div class="skeleton-row" *ngFor="let i of [1, 2, 3, 4, 5]"></div>
+    </div>
+
+    <ng-container *ngIf="!loading() && !error()">
+      <table class="report__table" *ngIf="events().length; else emptyState">
+        <thead>
+          <tr>
+            <th>Evento</th>
+            <th>Fecha</th>
+            <th>Ubicación</th>
+            <th>Categoría</th>
+            <th>Ponentes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let event of events()">
+            <td class="report__name">{{ event.name }}</td>
+            <td>{{ event.date | date: 'd MMM y' }}</td>
+            <td>{{ event.location }}</td>
+            <td>{{ event.categoryName }}</td>
+            <td>
+              <span *ngIf="event.speakerDtos.length; else noSpeakers">{{ speakerNames(event) }}</span>
+              <ng-template #noSpeakers>—</ng-template>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <ng-template #emptyState>
+        <p class="report__empty">No hay eventos que coincidan con estos filtros.</p>
+      </ng-template>
+
+      <footer class="report__footer" *ngIf="events().length">
+        Total: {{ events().length }} evento{{ events().length === 1 ? '' : 's' }}
+      </footer>
+    </ng-container>
+  </article>
+</section>

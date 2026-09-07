@@ -1,0 +1,31 @@
+.app-shell {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  grid-template-rows: 60px 1fr;
+  grid-template-areas:
+    "header header"
+    "sidebar content";
+  height: 100vh;
+}
+
+.app-header {
+  grid-area: header;
+  background-color: #1f232d;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1rem;
+  border-bottom: 2px solid #c89b4a;
+}
+
+app-sidebar-menu {
+  grid-area: sidebar;
+}
+
+.app-content {
+  grid-area: content;
+  padding: 1rem;
+  background-color: #f5f6fa;
+  overflow-y: auto;
+}

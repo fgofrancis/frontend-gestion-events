@@ -1,0 +1,106 @@
+<section class="page">
+  <header class="page__header">
+    <div>
+      <h1 class="page__title">Eventos</h1>
+      <p class="page__subtitle">Todos los eventos programados, con su categoría y ponentes</p>
+    </div>
+    <a class="btn btn--primary" routerLink="nuevo">Nuevo evento</a>
+  </header>
+
+  <form class="filters" [formGroup]="filtersForm" (ngSubmit)="applyFilters()">
+    <div class="filters__field">
+      <label for="f-name">Nombre</label>
+      <input id="f-name" type="text" formControlName="name" placeholder="Buscar por nombre" />
+    </div>
+    <div class="filters__field">
+      <label for="f-location">Ubicación</label>
+      <input id="f-location" type="text" formControlName="location" placeholder="Ciudad o sede" />
+    </div>
+    <div class="filters__field">
+      <label for="f-from">Desde</label>
+      <input id="f-from" type="date" formControlName="dateFrom" />
+    </div>
+    <div class="filters__field">
+      <label for="f-to">Hasta</label>
+      <input id="f-to" type="date" formControlName="dateTo" />
+    </div>
+    <div class="filters__actions">
+      <button type="submit" class="btn btn--primary btn--sm">Filtrar</button>
+      <button type="button" class="btn btn--ghost btn--sm" (click)="clearFilters()">Limpiar</button>
+      <button type="button" class="btn btn--ghost btn--sm" (click)="openReport()">Generar reporte</button>
+    </div>
+  </form>
+
+  <p class="alert" *ngIf="error()">{{ error() }}</p>
+
+  <div class="table-card" *ngIf="!loading(); else loadingState">
+    <table class="table" *ngIf="page()?.content?.length; else emptyState">
+      <thead>
+        <tr>
+          <th>Evento</th>
+          <th>Fecha</th>
+          <th>Ubicación</th>
+          <th>Categoría</th>
+          <th>Ponentes</th>
+          <th class="table__actions-col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let event of page()!.content">
+          <td class="table__name">{{ event.name }}</td>
+          <td>{{ event.date | date: 'd MMM y' }}</td>
+          <td class="table__muted">{{ event.location }}</td>
+          <td>
+            <span class="badge">{{ event.categoryName }}</span>
+          </td>
+          <td class="table__speakers">
+            <span class="chip" *ngFor="let speaker of event.speakerDtos.slice(0, 2)">{{ speaker.name }}</span>
+            <span class="chip chip--more" *ngIf="event.speakerDtos.length > 2">
+              +{{ event.speakerDtos.length - 2 }}
+            </span>
+            <span class="table__muted" *ngIf="!event.speakerDtos.length">—</span>
+          </td>
+          <td class="table__actions">
+            <a class="link" [routerLink]="[event.id, 'editar']">Editar</a>
+            <button
+              type="button"
+              class="link link--danger"
+              [disabled]="deletingId() === event.id"
+              (click)="remove(event)"
+            >
+              {{ deletingId() === event.id ? 'Eliminando…' : 'Eliminar' }}
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <ng-template #emptyState>
+      <div class="empty">
+        <p class="empty__title">No se encontraron eventos</p>
+        <p class="empty__subtitle">Ajusta los filtros o crea el primer evento.</p>
+        <a class="btn btn--primary" routerLink="nuevo">Nuevo evento</a>
+      </div>
+    </ng-template>
+
+    <div class="pagination" *ngIf="page() as p">
+      <span class="pagination__info">
+        Página {{ p.number + 1 }} de {{ p.totalPages || 1 }} · {{ p.totalElements }} eventos
+      </span>
+      <div class="pagination__controls">
+        <button type="button" class="btn btn--ghost btn--sm" [disabled]="p.first" (click)="goToPage(p.number - 1)">
+          Anterior
+        </button>
+        <button type="button" class="btn btn--ghost btn--sm" [disabled]="p.last" (click)="goToPage(p.number + 1)">
+          Siguiente
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #loadingState>
+    <div class="table-card table-card--loading">
+      <div class="skeleton-row" *ngFor="let i of [1, 2, 3, 4]"></div>
+    </div>
+  </ng-template>
+</section>
