@@ -79,23 +79,53 @@
     </div>
 
     <div class="field">
-      <label class="field__label">Ponentes</label>
-      <div class="speakers" *ngIf="speakers().length; else noSpeakers">
-        <label class="speaker-option" *ngFor="let speaker of speakers()">
-          <input
-            type="checkbox"
-            [checked]="isSpeakerSelected(speaker.id)"
-            (change)="toggleSpeaker(speaker.id)"
-          />
-          <span class="speaker-option__name">{{ speaker.name }}</span>
-        </label>
-      </div>
-      <ng-template #noSpeakers>
-        <p class="field__hint">
-          No hay ponentes registrados todavía —
-          <a routerLink="/ponentes/nuevo">crea uno primero</a>.
+      <label class="field__label" for="speakerSearch">Ponentes</label>
+
+      <div class="speaker-picker">
+        <div class="speaker-chips" *ngIf="selectedSpeakers().length">
+          <span class="chip" *ngFor="let speaker of selectedSpeakers()">
+            {{ speaker.name }}
+            <button
+              type="button"
+              class="chip__remove"
+              (click)="removeSpeaker(speaker.id)"
+              [attr.aria-label]="'Quitar ' + speaker.name"
+            >
+              ×
+            </button>
+          </span>
+        </div>
+
+        <input
+          id="speakerSearch"
+          type="text"
+          class="field__input"
+          placeholder="Buscar ponente por nombre o correo…"
+          autocomplete="off"
+          [value]="speakerQuery()"
+          (input)="onSpeakerQueryChange($event)"
+          (focus)="showSuggestions.set(true)"
+          (blur)="showSuggestions.set(false)"
+        />
+
+        <ul class="speaker-suggestions" *ngIf="showSuggestions() && filteredSpeakers().length">
+          <li *ngFor="let speaker of filteredSpeakers()">
+            <button type="button" (mousedown)="$event.preventDefault(); selectSpeaker(speaker.id)">
+              <span class="speaker-suggestions__name">{{ speaker.name }}</span>
+              <span class="speaker-suggestions__email">{{ speaker.email }}</span>
+            </button>
+          </li>
+        </ul>
+
+        <p class="field__hint" *ngIf="showSuggestions() && speakerQuery() && !filteredSpeakers().length">
+          No se encontraron ponentes con "{{ speakerQuery() }}".
         </p>
-      </ng-template>
+      </div>
+
+      <p class="field__hint" *ngIf="!speakers().length">
+        No hay ponentes registrados todavía —
+        <a routerLink="/ponentes/nuevo">crea uno primero</a>.
+      </p>
     </div>
 
     <div class="form__actions">

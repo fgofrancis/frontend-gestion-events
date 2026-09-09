@@ -5,5 +5,7 @@ declare const process: {
 };
 
 export const environment = {
-  apiUrl: process.env['API_URL'] || ''
+  apiUrl: (typeof process !== 'undefined' && process.env['API_URL'])
+    ? process.env['API_URL']
+    : 'http://localhost:8080/api/v1' 
 };

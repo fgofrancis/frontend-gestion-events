@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -8,6 +8,8 @@ import { CategoryService } from '../categorias/category.service';
 import { SpeakerService } from '../ponentes/speaker.service';
 import { CategoryDto } from '../categorias/category.model';
 import { SpeakerResponseDto } from '../ponentes/speaker.model';
+
+const SUGGESTIONS_LIMIT = 8;
 
 @Component({
   selector: 'app-evento-form',
@@ -34,6 +36,31 @@ export class EventoFormComponent {
   readonly categories = signal<CategoryDto[]>([]);
   readonly speakers = signal<SpeakerResponseDto[]>([]);
   readonly selectedSpeakerIds = signal<Set<number>>(new Set());
+
+  /** texto del buscador de ponentes */
+  readonly speakerQuery = signal('');
+  readonly showSuggestions = signal(false);
+
+  /** ponentes ya elegidos, como objetos completos (para pintar los chips) */
+  readonly selectedSpeakers = computed(() => {
+    const ids = this.selectedSpeakerIds();
+    return this.speakers().filter((s) => ids.has(s.id));
+  });
+
+  /** resultados del buscador: excluye a los ya elegidos, filtra por nombre/correo */
+  readonly filteredSpeakers = computed(() => {
+    const query = this.speakerQuery().trim().toLowerCase();
+    const selectedIds = this.selectedSpeakerIds();
+    const pool = this.speakers().filter((s) => !selectedIds.has(s.id));
+
+    const matches = query
+      ? pool.filter(
+          (s) => s.name.toLowerCase().includes(query) || s.email.toLowerCase().includes(query),
+        )
+      : pool;
+
+    return matches.slice(0, SUGGESTIONS_LIMIT);
+  });
 
   readonly form = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(150)]],
@@ -75,18 +102,24 @@ export class EventoFormComponent {
     });
   }
 
-  toggleSpeaker(id: number): void {
-    const current = new Set(this.selectedSpeakerIds());
-    if (current.has(id)) {
-      current.delete(id);
-    } else {
-      current.add(id);
-    }
-    this.selectedSpeakerIds.set(current);
+  onSpeakerQueryChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.speakerQuery.set(input.value);
+    this.showSuggestions.set(true);
   }
 
-  isSpeakerSelected(id: number): boolean {
-    return this.selectedSpeakerIds().has(id);
+  selectSpeaker(id: number): void {
+    const current = new Set(this.selectedSpeakerIds());
+    current.add(id);
+    this.selectedSpeakerIds.set(current);
+    this.speakerQuery.set('');
+    this.showSuggestions.set(false);
+  }
+
+  removeSpeaker(id: number): void {
+    const current = new Set(this.selectedSpeakerIds());
+    current.delete(id);
+    this.selectedSpeakerIds.set(current);
   }
 
   submit(): void {
